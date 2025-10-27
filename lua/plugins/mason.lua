@@ -52,7 +52,7 @@ return {
         opts = {
             ensure_installed = {
                 -- C/C++
-                "clang-format",  -- Formatter
+                ---"clang-format",  -- Formatter
                 "cpplint",       -- Linter
                 
                 -- Python
