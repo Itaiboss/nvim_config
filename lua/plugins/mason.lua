@@ -1,45 +1,39 @@
+-- ~/.config/nvim/lua/plugins/mason.lua
 -- Complete Mason + LSP + Linters configuration
--- Place this in ~/.config/nvim/lua/plugins/lsp.lua (or wherever your mason config is)
 
 return {
     -- Mason: Package manager for LSP servers, linters, formatters
     {
         "williamboman/mason.nvim",
-        opts = {
-            ui = {
-                icons = {
-                    package_installed = "✓",
-                    package_pending = "➜",
-                    package_uninstalled = "✗"
+        config = function()
+            require("mason").setup({
+                ui = {
+                    icons = {
+                        package_installed = "✓",
+                        package_pending = "➜",
+                        package_uninstalled = "✗"
+                    },
+                    border = "rounded",
                 }
-            }
-        }
+            })
+        end
     },
 
     -- Mason-lspconfig: Bridges mason and lspconfig
     {
         "williamboman/mason-lspconfig.nvim",
         dependencies = { "williamboman/mason.nvim" },
-        opts = {
-            -- LSP servers to auto-install
-            ensure_installed = {
-                "lua_ls",        -- Lua
-                "rust_analyzer", -- Rust
-                "clangd",        -- C/C++
-                "pylsp",         -- Python (python-lsp-server)
-            },
-            automatic_installation = true,
-            -- Don't auto-configure servers, we'll do it manually
-            handlers = {
-                -- Default handler (optional)
-                function(server_name)
-                    -- Only configure servers we explicitly set up
-                    if server_name ~= "pyright" then
-                        -- Will be configured in nvim-lspconfig section
-                    end
-                end,
-            },
-        }
+        config = function()
+            require("mason-lspconfig").setup({
+                ensure_installed = {
+                    "lua_ls",        -- Lua
+                    "clangd",        -- C/C++
+                    "pylsp",         -- Python
+                    "rust_analyzer", -- Rust (if you use it)
+                },
+                automatic_installation = true,
+            })
+        end
     },
 
     -- Mason-null-ls: Auto-install linters & formatters
@@ -49,27 +43,25 @@ return {
             "williamboman/mason.nvim",
             "nvimtools/none-ls.nvim",
         },
-        opts = {
-            ensure_installed = {
-                -- C/C++
-                ---"clang-format",  -- Formatter
-                "cpplint",       -- Linter
-                
-                -- Python
-                "black",         -- Formatter
-                "isort",         -- Import sorter
-               
-                "flake8",        -- Linter
-                
-                -- Lua
-                "stylua",        -- Formatter
-                "luacheck",      -- Linter
-                
-                -- General
-                "codespell",     -- Spell checker
-            },
-            automatic_installation = true,
-        }
+        config = function()
+            require("mason-null-ls").setup({
+                ensure_installed = {
+                    -- C/C++
+                    "clang-format",  -- Formatter
+                    "cpplint",       -- Linter
+                    
+                    -- Python
+                    "black",         -- Formatter
+                    "isort",         -- Import sorter
+                    "flake8",        -- Linter
+                    
+                    -- Lua
+                    "stylua",        -- Formatter
+                    "luacheck",      -- Linter
+                },
+                automatic_installation = true,
+            })
+        end
     },
 
     -- None-ls: Integrate linters/formatters with LSP
@@ -82,21 +74,19 @@ return {
             null_ls.setup({
                 sources = {
                     -- C/C++
-                    null_ls.builtins.formatting.clang_format,
+                    null_ls.builtins.formatting.clang_format.with({
+                        extra_args = { "--style=Google" }, -- Change to your preferred style
+                    }),
                     null_ls.builtins.diagnostics.cpplint,
                     
                     -- Python
                     null_ls.builtins.formatting.black,
                     null_ls.builtins.formatting.isort,
-                    null_ls.builtins.diagnostics.pylint,
                     null_ls.builtins.diagnostics.flake8,
                     
                     -- Lua
                     null_ls.builtins.formatting.stylua,
                     null_ls.builtins.diagnostics.luacheck,
-                    
-                    -- General
-                    null_ls.builtins.diagnostics.codespell,
                 },
                 -- Format on save
                 on_attach = function(client, bufnr)
@@ -122,34 +112,41 @@ return {
             "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
+            local lspconfig = require('lspconfig')
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-            -- Common on_attach function
+            -- Common on_attach function with keybindings
             local on_attach = function(client, bufnr)
-                local bufopts = { noremap = true, silent = true, buffer = bufnr }
+                local opts = { noremap = true, silent = true, buffer = bufnr }
                 
-                -- Keybindings
-                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-                vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-                vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-                vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, bufopts)
-                vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
-                vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, bufopts)
-                vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
-                vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, bufopts)
-                vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                -- LSP Keybindings
+                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+                vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+                vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+                vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+                vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+                vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
+                vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
                 vim.keymap.set('n', '<space>f', function()
                     vim.lsp.buf.format { async = true }
-                end, bufopts)
-                vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, bufopts)
-                vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, bufopts)
-                vim.keymap.set('n', ']d', vim.diagnostic.goto_next, bufopts)
+                end, opts)
+                vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
+                vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+                vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+                vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
+
+                -- Inlay hints (if supported)
+                if client.server_capabilities.inlayHintProvider then
+                    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                end
             end
 
-            -- C/C++ - clangd
-            vim.lsp.config.clangd = {
+            -- C/C++ - clangd with advanced features
+            lspconfig.clangd.setup({
                 cmd = {
                     "clangd",
                     "--background-index",
@@ -157,15 +154,25 @@ return {
                     "--header-insertion=iwyu",
                     "--completion-style=detailed",
                     "--function-arg-placeholders",
+                    "--fallback-style=llvm",
+                    "--pch-storage=memory",
+                    "--offset-encoding=utf-16",  -- Add this to fix encoding warning
                 },
-                filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
-                root_markers = { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", ".git" },
                 capabilities = capabilities,
                 on_attach = on_attach,
-            }
+                filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+                root_dir = lspconfig.util.root_pattern(
+                    '.clangd',
+                    '.clang-tidy',
+                    '.clang-format',
+                    'compile_commands.json',
+                    'compile_flags.txt',
+                    'configure.ac',
+                    '.git'
+                ),
+            })
 
-            -- Python - pylsp (python-lsp-server)
-            -- Determine which pylsp to use (venv or system)
+            -- Python - pylsp
             local function get_pylsp_cmd()
                 local venv = os.getenv("VIRTUAL_ENV")
                 if venv then
@@ -177,22 +184,15 @@ return {
                 return { "pylsp" }
             end
 
-            vim.lsp.config.pylsp = {
+            lspconfig.pylsp.setup({
                 cmd = get_pylsp_cmd(),
-                filetypes = { "python" },
-                root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
                 capabilities = capabilities,
                 on_attach = on_attach,
                 settings = {
                     pylsp = {
                         plugins = {
-                            -- Linting
-                            pylint = { enabled = true, executable = "pylint" },
                             pyflakes = { enabled = false },
                             pycodestyle = { enabled = false },
-                            -- Type checking
-                            pylsp_mypy = { enabled = false },
-                            -- Auto-completion
                             jedi_completion = { 
                                 enabled = true,
                                 fuzzy = true,
@@ -201,19 +201,35 @@ return {
                             jedi_references = { enabled = true },
                             jedi_signature_help = { enabled = true },
                             jedi_symbols = { enabled = true, all_scopes = true },
-                            -- Formatting (handled by null-ls)
-                            autopep8 = { enabled = false },
-                            yapf = { enabled = false },
                         }
                     }
                 },
-            }
+            })
 
-            -- Rust - rust-analyzer
-            vim.lsp.config.rust_analyzer = {
-                cmd = { "rust-analyzer" },
-                filetypes = { "rust" },
-                root_markers = { "Cargo.toml", ".git" },
+            -- Lua - lua_ls
+            lspconfig.lua_ls.setup({
+                capabilities = capabilities,
+                on_attach = on_attach,
+                settings = {
+                    Lua = {
+                        runtime = { version = 'LuaJIT' },
+                        diagnostics = { 
+                            globals = { 'vim' },
+                        },
+                        workspace = {
+                            library = vim.api.nvim_get_runtime_file("", true),
+                            checkThirdParty = false,
+                        },
+                        telemetry = { enable = false },
+                        hint = {
+                            enable = true,
+                        },
+                    },
+                },
+            })
+
+            -- Rust (optional)
+            lspconfig.rust_analyzer.setup({
                 capabilities = capabilities,
                 on_attach = on_attach,
                 settings = {
@@ -229,30 +245,7 @@ return {
                         },
                     }
                 },
-            }
-
-            -- Lua - lua_ls
-            vim.lsp.config.lua_ls = {
-                cmd = { "lua-language-server" },
-                filetypes = { "lua" },
-                root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", ".git" },
-                capabilities = capabilities,
-                on_attach = on_attach,
-                settings = {
-                    Lua = {
-                        runtime = { version = 'LuaJIT' },
-                        diagnostics = { globals = { 'vim' } },
-                        workspace = {
-                            library = vim.api.nvim_get_runtime_file("", true),
-                            checkThirdParty = false,
-                        },
-                        telemetry = { enable = false },
-                    },
-                },
-            }
-
-            -- Enable LSP servers
-            vim.lsp.enable({ "clangd", "pylsp", "rust_analyzer", "lua_ls" })
+            })
 
             -- Diagnostic configuration
             vim.diagnostic.config({
@@ -260,29 +253,38 @@ return {
                     prefix = '●',
                     source = "if_many",
                 },
-                signs = {
-                    text = {
-                        [vim.diagnostic.severity.ERROR] = "✘",
-                        [vim.diagnostic.severity.WARN] = "▲",
-                        [vim.diagnostic.severity.HINT] = "⚑",
-                        [vim.diagnostic.severity.INFO] = "»",
-                    },
-                },
+                signs = true,
                 underline = true,
                 update_in_insert = false,
                 severity_sort = true,
                 float = {
                     border = "rounded",
                     source = "always",
+                    header = "",
+                    prefix = "",
                 },
             })
 
-            -- Hover borders
+            -- Diagnostic signs
+            local signs = {
+                Error = "✘",
+                Warn = "▲",
+                Hint = "⚑",
+                Info = "»",
+            }
+            for type, icon in pairs(signs) do
+                local hl = "DiagnosticSign" .. type
+                vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+            end
+
+            -- Hover and signature help borders
             vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                vim.lsp.handlers.hover, { border = "rounded" }
+                vim.lsp.handlers.hover,
+                { border = "rounded" }
             )
             vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-                vim.lsp.handlers.signature_help, { border = "rounded" }
+                vim.lsp.handlers.signature_help,
+                { border = "rounded" }
             )
         end
     },
@@ -294,6 +296,7 @@ return {
             "hrsh7th/cmp-nvim-lsp",
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
+            "hrsh7th/cmp-cmdline",
             "L3MON4D3/LuaSnip",
             "saadparwaiz1/cmp_luasnip",
         },
@@ -337,11 +340,11 @@ return {
                     end, { 'i', 's' }),
                 }),
                 sources = cmp.config.sources({
-                    { name = 'nvim_lsp' },
-                    { name = 'luasnip' },
-                    { name = 'path' },
+                    { name = 'nvim_lsp', priority = 1000 },
+                    { name = 'luasnip', priority = 750 },
+                    { name = 'path', priority = 500 },
                 }, {
-                    { name = 'buffer' },
+                    { name = 'buffer', priority = 250 },
                 }),
                 formatting = {
                     format = function(entry, vim_item)
@@ -354,6 +357,23 @@ return {
                         return vim_item
                     end
                 },
+            })
+
+            -- Cmdline completions
+            cmp.setup.cmdline('/', {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = {
+                    { name = 'buffer' }
+                }
+            })
+
+            cmp.setup.cmdline(':', {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = cmp.config.sources({
+                    { name = 'path' }
+                }, {
+                    { name = 'cmdline' }
+                })
             })
         end
     },

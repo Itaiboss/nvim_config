@@ -12,3 +12,10 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 vim.opt.winborder = 'rounded'
+vim.filetype.add({
+    extension = {
+        tex = "tex",
+    },
+})
+
+

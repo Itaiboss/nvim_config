@@ -2,16 +2,15 @@ return {
     "lervag/vimtex",
     lazy = false,
     config = function()
-        -- Use Skim as the PDF viewer on macOS
         vim.g.vimtex_view_method = 'skim'
-        
-        -- Compiler method (latexmk is default and recommended)
         vim.g.vimtex_compiler_method = 'latexmk'
-        
-        -- Set local leader
---        vim.g.maplocalleader = ","
-        
-        -- Don't auto-open quickfix window
         vim.g.vimtex_quickfix_mode = 0
+        
+        -- Essential for snippets: disable VimTeX's default insert mode mappings 
+        -- if they conflict with your snippets
+        vim.g.vimtex_imaps_enabled = 0
+
+        -- Recommended: Map localleader for VimTeX commands
+        vim.g.maplocalleader = ","
     end,
 }
