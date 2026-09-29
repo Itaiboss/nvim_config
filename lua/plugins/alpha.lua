@@ -1,6 +1,6 @@
 return {
     "goolord/alpha-nvim",
-    lazy = false, -- Load immediately so it can claim the empty buffer
+    event = "VimEnter",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
         local alpha = require("alpha")

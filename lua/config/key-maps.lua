@@ -238,10 +238,14 @@ _G.setup_lsp_keymaps = setup_lsp_keymaps
 -- PLATFORMIO
 -- ===================================================================
 -- This opens the PlatformIO menu
-vim.keymap.set("n", "<leader>p", "<cmd>Pioinit<cr>", { desc = "PlatformIO Menu" })
--- You can also add specific commands if you use them often:
-vim.keymap.set("n", "<leader>pr", "<cmd>Piorun<cr>", { desc = "PlatformIO Run" })
-vim.keymap.set("n", "<leader>pm", "<cmd>Piomon<cr>", { desc = "PlatformIO Monitor" })
+    vim.keymap.set('n', '<leader>pb', '<cmd>Piorun build<cr>', { desc = 'PIO Build' })
+    vim.keymap.set('n', '<leader>pu', '<cmd>Piorun upload<cr>', { desc = 'PIO Upload' })
+    vim.keymap.set('n', '<leader>pm', '<cmd>Piomon<cr>', { desc = 'PIO Serial Monitor' })
+    vim.keymap.set('n', '<leader>pc', '<cmd>Piorun clean<cr>', { desc = 'PIO Clean' })
+    vim.keymap.set('n', '<leader>pi', '<cmd>Pioinit<cr>', { desc = 'PIO Init Project' })
+    vim.keymap.set('n', '<leader>pl', '<cmd>Piolib<cr>', { desc = 'PIO Library Manager' })
+    vim.keymap.set('n', '<leader>pf', '<cmd>Piorun fullclean<cr>', { desc = 'PIO Full Clean' })
+    vim.keymap.set('n', '<leader>pt', '<cmd>Piorun test<cr>', { desc = 'PIO Test' })
 
 return {
 	setup_lsp_keymaps = setup_lsp_keymaps,

@@ -215,4 +215,47 @@ return {
     s("cite", {
         t("\\cite{"), i(1), t("}"), i(0)
     }),
+s("fig", fmta(
+        [[
+        \begin{figure}[<1>]
+            \centering
+            \includegraphics[width=<2>\textwidth]{<3>}
+            \caption{<4>}
+            \label{fig:<5>}
+        \end{figure}
+        ]],
+        {
+            i(1, "htpb"),             -- Placement options
+            i(2, "0.8"),              -- Scale/Width
+            i(3, "image-path"),       -- File name
+            i(4, "caption-text"),     -- Caption
+            i(5, "label-name"),       -- Label
+        }
+    )),
+s("tbl", fmta(
+        [[
+        \begin{table}[<1>]
+            \centering
+            \caption{<2>}
+            \label{tab:<3>}
+            \begin{tabular}{<4>}
+                \hline
+                <5> & <6> \\
+                \hline
+                <7> & <8> \\
+                \hline
+            \end{tabular}
+        \end{table}
+        ]],
+        {
+            i(1, "htpb"),           -- Placement
+            i(2, "caption"),         -- Caption
+            i(3, "label"),           -- Label
+            i(4, "c c"),             -- Column alignment (e.g., c c c)
+            i(5, "Header 1"),        -- Row 1, Col 1
+            i(6, "Header 2"),        -- Row 1, Col 2
+            i(7, "Data 1"),          -- Row 2, Col 1
+            i(8, "Data 2"),          -- Row 2, Col 2
+        }
+    )),
 }
